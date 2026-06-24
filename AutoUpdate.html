@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading Content...</title>
+</head>
+<body>
+
+    <p id="status">Fetching and rendering page content...</p>
+
+    <script>
+        // 1. Replace with your deployed Cloudflare Worker URL
+        const workerProxyUrl = 'https://filebridge.crazyinvader135.workers.dev/';
+
+        // 2. Replace with your raw GitLab URL containing the HTML webpage code
+        const gitLabRawUrl = 'https://gitlab.com/MalenamehereBC11/chd/-/raw/main/index.html?ref_type=heads';
+
+        async function renderGitLabPage() {
+            try {
+                const targetUrl = `${workerProxyUrl}?url=${encodeURIComponent(gitLabRawUrl)}`;
+                const response = await fetch(targetUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const remoteHtmlCode = await response.text();
+                
+                // Completely erase the current document and write the new HTML code
+                document.open();
+                document.write(remoteHtmlCode);
+                document.close(); // Closes the stream and forces the browser to run scripts
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    `<span style="color: red; font-weight: bold;">Failed to render page: ${error.message}</span>`;
+            }
+        }
+
+        renderGitLabPage();
+    </script>
+
+</body>
+</html>
